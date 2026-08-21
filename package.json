@@ -5,9 +5,16 @@
   "private": true,
   "type": "module",
   "main": "./lib/index.js",
+  "types": "./lib/types/index.d.ts",
   "exports": {
-    ".": "./lib/index.js",
-    "./client": "./lib/client.js",
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "types": "./lib/types/client/index.d.ts",
+      "default": "./lib/client.js"
+    },
     "./dsh.bundle.patch": "./dsh.bundle.patch",
     "./package.json": "./package.json"
   },
@@ -15,14 +22,20 @@
     "lib/index.js",
     "lib/client.js",
     "lib/client.js.map",
+    "lib/types/**/*.d.ts",
+    "lib/types/**/*.d.ts.map",
     "dsh.bundle.patch",
-    "README.md"
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "LICENSES/**/*.txt"
   ],
   "scripts": {
-    "build": "node scripts/build.mjs",
-    "typecheck": "tsc --noEmit",
-    "verify": "pnpm run typecheck && pnpm run build",
-    "prepare": "node scripts/build.mjs"
+    "build": "node scripts/build.mjs && tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "verify": "pnpm run typecheck && pnpm run test && pnpm run build && node scripts/smoke-bundle.mjs",
+    "prepare": "node scripts/build.mjs && tsc -p tsconfig.build.json"
   },
   "dsh": {
     "bundle": {
@@ -52,12 +65,17 @@
     "@deepseek-ai/dsh-client-ui-slots": "0.1.0-rc.7",
     "@deepseek-ai/dsh-host-webserver": "0.1.0-rc.7",
     "@deepseek-ai/dsh-storage-domain": "0.1.0-rc.7",
+    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/react": "16.3.0",
+    "@testing-library/user-event": "14.6.1",
     "@types/react": "18.3.27",
     "@types/react-dom": "18.3.7",
     "esbuild": "0.27.0",
+    "jsdom": "27.2.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "vitest": "4.0.13"
   },
   "engines": {
     "node": ">=22"
