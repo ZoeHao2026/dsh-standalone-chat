@@ -4,8 +4,10 @@ import type { ClientConnectionRpc } from '@deepseek-ai/dsh-client-connection/cli
 import type { ClientContext } from '@deepseek-ai/dsh-client-runtime/client'
 import type {} from '@deepseek-ai/dsh-client-ui-layout/client'
 import type {} from '@deepseek-ai/dsh-client-ui-sidebar/client'
+import type { PropsRenderSlots } from '@deepseek-ai/dsh-client-ui-slots'
 
 import { ChatApi } from './api.js'
+import type { ChatModelSelection } from './chat-model-slot.js'
 import { ChatNavAction } from './ChatNavAction.js'
 import { ChatPage } from './ChatPage.js'
 import { CHAT_LOCALE_NS, dictionaries } from './locales.js'
@@ -18,14 +20,18 @@ import './styles.css'
 
 export const inject = ['slots', 'locale', 'connection']
 
+/** Render share for the seat declared by this entry (children of shell.overlay). */
+type ModelSeatRender = PropsRenderSlots<'chat.input.model'>['renderSlot']
+
 interface Injected {
   t: ChatT
   chat: ChatStore
   router: Router
+  renderSlot: ModelSeatRender
 }
 
 /** shell.overlay entry: renders the chat page only while the route matches. */
-function ChatOverlay({ t, chat, router }: Injected) {
+function ChatOverlay({ t, chat, router, renderSlot }: Injected) {
   const pathname = useSyncExternalStore(router.subscribe, router.getSnapshot)
   const active = parseRoute(pathname).view === 'chat'
 
@@ -41,7 +47,7 @@ function ChatOverlay({ t, chat, router }: Injected) {
   if (!active) return null
   return (
     <div className="dshsc-overlay">
-      <ChatPage t={t} chat={chat} router={router} />
+      <ChatPage t={t} chat={chat} router={router} renderSlot={renderSlot} />
     </div>
   )
 }
@@ -80,6 +86,22 @@ export function apply(ctx: ClientContext): void {
         label: () => ctx.locale.bind(CHAT_LOCALE_NS)('title'),
         locale: CHAT_LOCALE_NS,
         inject: () => ({ chat, router }),
+        // Declares the chat model seat: an optional slot-level inject face
+        // (the directory adapter) is supplied to every occupant. Other
+        // plugins (e.g. dsh-ui-model-selection-collapsible) register here.
+        children: {
+          'chat.input.model': {
+            kind: 'single',
+            scope: 'root',
+            inject: {
+              getDirectory: () => chat.getDirectoryStore(),
+              load: () => {
+                void chat.refreshModels()
+              },
+              select: (selection: ChatModelSelection) => chat.selectModel(selection),
+            },
+          },
+        },
       },
       ChatOverlay,
     ),

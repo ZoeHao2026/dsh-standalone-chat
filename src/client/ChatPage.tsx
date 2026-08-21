@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useSyncExternalStore } from 'react'
+import type { PropsRenderSlots } from '@deepseek-ai/dsh-client-ui-slots'
 
 import { ChatList } from './ChatList.js'
 import { Composer } from './Composer.js'
@@ -14,10 +15,12 @@ export interface ChatPageProps {
   t: ChatT
   chat: ChatStore
   router: Router
+  /** Render share of the `chat.input.model` seat declared by this entry. */
+  renderSlot: PropsRenderSlots<'chat.input.model'>['renderSlot']
 }
 
 /** The full chat page: history column, transcript, composer. */
-export function ChatPage({ t, chat, router }: ChatPageProps) {
+export function ChatPage({ t, chat, router, renderSlot }: ChatPageProps) {
   const pathname = useSyncExternalStore(router.subscribe, router.getSnapshot)
   const route = parseRoute(pathname)
   const conversationId = route.view === 'chat' ? route.conversationId : undefined
@@ -119,13 +122,18 @@ export function ChatPage({ t, chat, router }: ChatPageProps) {
           <MessageList t={t} current={state.current} draft={state.draft} reasoning={state.reasoning} running={state.running} />
         )}
         <div className="dshsc-composerArea">
-          <ModelSelect
-            t={t}
-            providers={state.models}
-            provider={activeModel?.provider}
-            model={activeModel?.model}
-            onSelect={selectModel}
-          />
+          {renderSlot('chat.input.model', {}, {
+            // Built-in fallback while no plugin occupies the chat model seat.
+            fallback: (
+              <ModelSelect
+                t={t}
+                providers={state.models}
+                provider={activeModel?.provider}
+                model={activeModel?.model}
+                onSelect={selectModel}
+              />
+            ),
+          })}
           <Composer t={t} running={state.running} onSend={(content) => void send(content)} onStop={() => void chat.cancel()} />
         </div>
       </section>

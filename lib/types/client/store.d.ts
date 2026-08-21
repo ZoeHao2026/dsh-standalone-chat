@@ -1,5 +1,6 @@
 import { ChatApi } from './api.js';
 import type { ChatConversation, ChatListItem, ChatProviderGroup } from './api.js';
+import type { ChatModelDirectoryStore, ChatModelSelection } from './chat-model-slot.js';
 export interface ChatState {
     readonly list: readonly ChatListItem[];
     readonly listLoaded: boolean;
@@ -35,6 +36,12 @@ export declare class ChatStore {
     refreshList(): Promise<void>;
     refreshModels(): Promise<void>;
     setModel(conversationId: string, provider: string, model: string, reasoningEffort?: string): Promise<void>;
+    private directoryStore;
+    /** Stable directory store for the `chat.input.model` slot occupants. */
+    getDirectoryStore(): ChatModelDirectoryStore;
+    private directorySnapshot;
+    /** Slot-facing selection: persists onto the open conversation or stages it. */
+    selectModel(selection: ChatModelSelection): Promise<boolean>;
     open(conversationId: string): Promise<void>;
     closeCurrent(): void;
     create(provider?: string, model?: string, reasoningEffort?: string): Promise<string>;

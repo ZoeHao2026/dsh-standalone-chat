@@ -6,6 +6,11 @@ import type {
   ChatModelCatalog,
   ChatProviderGroup,
 } from './api.js'
+import type {
+  ChatModelDirectorySnapshot,
+  ChatModelDirectoryStore,
+  ChatModelSelection,
+} from './chat-model-slot.js'
 
 export interface ChatState {
   readonly list: readonly ChatListItem[]
@@ -99,6 +104,51 @@ export class ChatStore {
   async setModel(conversationId: string, provider: string, model: string, reasoningEffort?: string): Promise<void> {
     const { conversation } = await this.api.setModel(conversationId, provider, model, reasoningEffort)
     if (this.snapshot.current?.id === conversationId) this.set({ current: conversation })
+  }
+
+  /* -------------------------------------------- chat.input.model seat ----- */
+
+  private directoryStore: ChatModelDirectoryStore | null = null
+
+  /** Stable directory store for the `chat.input.model` slot occupants. */
+  getDirectoryStore(): ChatModelDirectoryStore {
+    if (this.directoryStore === null) {
+      this.directoryStore = {
+        subscribe: (listener) => this.subscribe(listener),
+        getSnapshot: () => this.directorySnapshot(),
+      }
+    }
+    return this.directoryStore
+  }
+
+  private directorySnapshot(): ChatModelDirectorySnapshot {
+    const state = this.snapshot
+    const picked =
+      state.current && state.current.provider && state.current.model
+        ? { provider: state.current.provider, model: state.current.model, ...(state.current.reasoningEffort !== undefined ? { reasoningEffort: state.current.reasoningEffort } : {}) }
+        : state.pendingModel ?? state.defaultModel
+    return {
+      groups: state.models,
+      current: picked && picked.provider && picked.model ? picked : null,
+      available: state.modelsLoaded,
+      locked: state.running,
+    }
+  }
+
+  /** Slot-facing selection: persists onto the open conversation or stages it. */
+  async selectModel(selection: ChatModelSelection): Promise<boolean> {
+    if (!selection.provider || !selection.model) return false
+    const current = this.snapshot.current
+    if (current) {
+      try {
+        await this.setModel(current.id, selection.provider, selection.model, selection.reasoningEffort)
+        return true
+      } catch {
+        return false
+      }
+    }
+    this.setPendingModel(selection.provider, selection.model)
+    return true
   }
 
   /* --------------------------------------------------------- current ----- */
