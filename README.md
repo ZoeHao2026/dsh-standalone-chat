@@ -1,8 +1,12 @@
 # @local/dsh-standalone-chat
 
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 Standalone lightweight **Chat** for the DSH Web GUI — multi-turn LLM conversations
 with streaming, history, automatic titles, rename and delete, at real URLs
 `/chat` and `/chat/:conversationId`.
+
+Source: <https://github.com/ZoeHao2026/dsh-standalone-chat>
 
 Chats are **not** DSH agent sessions: the host half calls `ctx.llm.stream()`
 directly with hand-built `messages[]` — no system prompt, no tools, no skills,
