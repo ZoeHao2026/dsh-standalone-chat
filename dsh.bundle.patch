@@ -1,0 +1,6 @@
+# DSH bundle contribution for the standalone chat feature.
+# Inserts the host plugin row (chat store + RPC + SSE); the client half is
+# picked up from the package.json dsh.client manifest by dsh-client-modules.
+- insert:
+    - id: standalone-chat
+      name: '@local/dsh-standalone-chat'

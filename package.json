@@ -1,0 +1,81 @@
+{
+  "name": "@local/dsh-standalone-chat",
+  "version": "0.1.0",
+  "description": "Standalone lightweight Chat for DSH Web: multi-turn LLM conversations with streaming, history, auto titles, rename and delete — no agent/session/workspace context.",
+  "private": true,
+  "type": "module",
+  "main": "./lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./dsh.bundle.patch": "./dsh.bundle.patch",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/client.js",
+    "lib/client.js.map",
+    "dsh.bundle.patch",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "verify": "pnpm run typecheck && pnpm run build",
+    "prepare": "node scripts/build.mjs"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./dsh.bundle.patch"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-connection"
+      ]
+    }
+  },
+  "dependencies": {
+    "@deepseek-ai/dsh-llm": "0.1.0-rc.7",
+    "@deepseek-ai/dsh-session-title": "0.1.0-rc.7",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "4.0.1",
+    "@deepseek-ai/dsh-agent-default-model": "0.1.0-rc.7",
+    "@deepseek-ai/dsh-client-connection": "0.1.0-rc.7",
+    "@deepseek-ai/dsh-client-locale": "0.1.0-rc.7",
+    "@deepseek-ai/dsh-client-runtime": "0.1.0-rc.7",
+    "@deepseek-ai/dsh-client-ui-layout": "0.1.0-rc.7",
+    "@deepseek-ai/dsh-client-ui-primitives": "0.1.0-rc.7",
+    "@deepseek-ai/dsh-client-ui-sidebar": "0.1.0-rc.7",
+    "@deepseek-ai/dsh-client-ui-slots": "0.1.0-rc.7",
+    "@deepseek-ai/dsh-host-webserver": "0.1.0-rc.7",
+    "@deepseek-ai/dsh-storage-domain": "0.1.0-rc.7",
+    "@types/react": "18.3.27",
+    "@types/react-dom": "18.3.7",
+    "esbuild": "0.27.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@11.5.2",
+  "license": "MIT",
+  "keywords": [
+    "dsh-plugin",
+    "deepseek-harness",
+    "chat",
+    "standalone-chat"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZoeHao2026/dsh-standalone-chat.git"
+  },
+  "homepage": "https://github.com/ZoeHao2026/dsh-standalone-chat#readme",
+  "bugs": {
+    "url": "https://github.com/ZoeHao2026/dsh-standalone-chat/issues"
+  }
+}
