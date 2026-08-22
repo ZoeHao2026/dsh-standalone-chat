@@ -37,6 +37,8 @@ export declare class ChatStore {
     refreshModels(): Promise<void>;
     setModel(conversationId: string, provider: string, model: string, reasoningEffort?: string): Promise<void>;
     private directoryStore;
+    private directorySnapshotSource;
+    private directorySnapshotValue;
     /** Stable directory store for the `chat.input.model` slot occupants. */
     getDirectoryStore(): ChatModelDirectoryStore;
     private directorySnapshot;

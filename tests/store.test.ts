@@ -149,8 +149,13 @@ describe('ChatStore', () => {
     const second = store.getDirectoryStore()
     expect(first).toBe(second)
     const snapshot = first.getSnapshot()
+    expect(first.getSnapshot()).toBe(snapshot)
     expect(snapshot.groups).toHaveLength(1)
     expect(snapshot.groups[0]!.id).toBe('p')
+    expect(snapshot.routable).toBeNull()
+    expect(snapshot.failures).toEqual([])
+    expect(snapshot.status).toBe('ready')
+    expect(snapshot.error).toBeNull()
     expect(snapshot.available).toBe(true)
     expect(snapshot.locked).toBe(false)
     // The store mirrors chat state changes (subscribe fires on updates).
@@ -158,6 +163,9 @@ describe('ChatStore', () => {
     const unsubscribe = first.subscribe(listener)
     store.closeCurrent()
     expect(listener).toHaveBeenCalled()
+    const nextSnapshot = first.getSnapshot()
+    expect(nextSnapshot).not.toBe(snapshot)
+    expect(first.getSnapshot()).toBe(nextSnapshot)
     unsubscribe()
   })
 

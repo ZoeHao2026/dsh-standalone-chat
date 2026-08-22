@@ -29,6 +29,12 @@ export interface ChatModelGroup {
 export interface ChatModelDirectorySnapshot {
   groups: readonly ChatModelGroup[]
   current: ChatModelSelection | null
+  /** The chat catalog does not expose a separate route-health probe. */
+  routable: boolean | null
+  /** Provider-local failures are not exposed by the chat catalog RPC. */
+  failures: readonly { id: string; name: string; message: string }[]
+  status: 'idle' | 'loading' | 'ready' | 'selecting' | 'error'
+  error: string | null
   available: boolean
   locked: boolean
 }

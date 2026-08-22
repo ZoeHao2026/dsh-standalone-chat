@@ -109,6 +109,8 @@ export class ChatStore {
   /* -------------------------------------------- chat.input.model seat ----- */
 
   private directoryStore: ChatModelDirectoryStore | null = null
+  private directorySnapshotSource: ChatState | null = null
+  private directorySnapshotValue: ChatModelDirectorySnapshot | null = null
 
   /** Stable directory store for the `chat.input.model` slot occupants. */
   getDirectoryStore(): ChatModelDirectoryStore {
@@ -123,16 +125,26 @@ export class ChatStore {
 
   private directorySnapshot(): ChatModelDirectorySnapshot {
     const state = this.snapshot
+    if (this.directorySnapshotSource === state && this.directorySnapshotValue !== null) {
+      return this.directorySnapshotValue
+    }
     const picked =
       state.current && state.current.provider && state.current.model
         ? { provider: state.current.provider, model: state.current.model, ...(state.current.reasoningEffort !== undefined ? { reasoningEffort: state.current.reasoningEffort } : {}) }
         : state.pendingModel ?? state.defaultModel
-    return {
+    const value: ChatModelDirectorySnapshot = {
       groups: state.models,
       current: picked && picked.provider && picked.model ? picked : null,
+      routable: null,
+      failures: [],
+      status: state.modelsLoaded ? 'ready' : 'idle',
+      error: null,
       available: state.modelsLoaded,
       locked: state.running,
     }
+    this.directorySnapshotSource = state
+    this.directorySnapshotValue = value
+    return value
   }
 
   /** Slot-facing selection: persists onto the open conversation or stages it. */
